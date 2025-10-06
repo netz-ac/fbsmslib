@@ -153,6 +153,12 @@ class FBSMSLib:
         }
         response1 = self.safe_post_request(SMS_SEND_URL, req_data)
 
+        if response1.json()["data"]["apply"] != "ok":
+            if response1.json()["data"]["apply"] == "valerror":
+                raise RuntimeError(f"Validation error: {response1.json()['data']['valerror']}")
+            raise RuntimeError(f"Failed to initiate SMS sending. Response: {response1.json()['data']}")
+
+        # Everything done, no 2FA needed
         if "redirect" in response1.json()["data"].keys():
             return
 
