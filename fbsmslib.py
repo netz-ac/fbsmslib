@@ -20,12 +20,12 @@ class FBSMSLib:
     box_url: str = None
     username: str = None
     password: str = None
-    totpsecret: pyotp.TOTP = None
+    totp: pyotp.TOTP = None
     __sid: str = None
     __sid_timeout = None
 
     def __init__(
-        self, url: str, username: str, password: str, totpsecret: str, rate: Rate = None
+        self, url: str, username: str, password: str, totpsecret: str = None, rate: Rate = None
     ):
         rate = (
             [rate] if rate else [Rate(10, Duration.HOUR)]
@@ -35,7 +35,8 @@ class FBSMSLib:
         self.box_url = url
         self.username = username
         self.password = password
-        self.totpsecret = pyotp.TOTP(totpsecret)
+        if totpsecret is not None:
+            self.totp = pyotp.TOTP(totpsecret)
         self.get_current_sid()
 
     def get_current_sid(self) -> str:
@@ -178,6 +179,9 @@ class FBSMSLib:
 
         if response2.json()["data"]["second_apply"] == "twofactor":
             if "googleauth" in response2.json()["data"]["twofactor"]:
+                if self.totp is None:
+                    raise RuntimeError("2FA required but no TOTP secret provided during initialization.")
+
                 # we need tfa_googleauth_info
                 req_data = {
                     "xhr": 1,
@@ -190,7 +194,7 @@ class FBSMSLib:
                 req_data = {
                     "xhr": 1,
                     "sid": self.get_current_sid(),
-                    "tfa_googleauth": self.totpsecret.now(),
+                    "tfa_googleauth": self.totp.now(),
                     "no_sidrenew": "",
                 }
                 self.safe_post_request(MFA_URL, req_data)

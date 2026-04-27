@@ -16,7 +16,8 @@ A Python library for Fritz!Box authentication and SMS management. This library a
 - Python 3.11+
 - Fritz!Box with firmware version 8.03 or later (PBKDF2 support required)
 - SMS functionality enabled on your Fritz!Box
-- Valid Fritz!Box user credentials + activated TOTP with SMS permissions
+- Valid Fritz!Box user credentials with SMS permissions
+- Activated TOTP (when sending messages)
 
 ## Quick Start
 
@@ -28,7 +29,7 @@ fbsms = FBSMSLib(
     url="http://192.168.178.1",  # Your Fritz!Box IP
     username="your_username",
     password="your_password",
-    totpsecret="YOUR_TOTP_SECRET"
+    totpsecret="YOUR_TOTP_SECRET"  # optional when only retrieving messages
 )
 
 # Send a single SMS
@@ -64,13 +65,13 @@ NOTE: The library is blocking and synchronous right now. The fritzbox web interf
 #### Constructor
 
 ```python
-FBSMSLib(url: str, username: str, password: str, totpsecret: str, rate: Rate = None)
+FBSMSLib(url: str, username: str, password: str, totpsecret: str = None, rate: Rate = None)
 ```
 
 - `url`: Fritz!Box web interface URL (e.g., "http://192.168.178.1")
 - `username`: Fritz!Box username
 - `password`: Fritz!Box password
-- `totpsecret`: TOTP secret for 2FA (if enabled)
+- `totpsecret`: TOTP secret for 2FA (if enabled and you want to send messages)
 - `rate`: Optional `Rate` object from `pyrate_limiter` to customize rate limiting (default is 10 SMS/hour)
 
 #### Methods
@@ -135,8 +136,7 @@ from fbsmslib import FBSMSLib
 fbsms = FBSMSLib(
     url="http://192.168.178.1",
     username="admin",
-    password="your_password",
-    totpsecret="ABCD1234EFGH5678"
+    password="your_password"
 )
 
 # Check for new messages every 30 seconds
