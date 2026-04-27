@@ -1,6 +1,6 @@
 [project]
 name = "fbsmslib"
-version = "0.1.1"
+version = "0.1.2"
 description = "A small library for AVM Fritz!Box authentication and SMS sending"
 authors = [
     {name = "Netz.ac e.V.",email = "verein@netz.ac"}
